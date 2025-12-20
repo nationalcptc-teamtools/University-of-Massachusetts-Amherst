@@ -1,0 +1,3 @@
+[submodule "enum4ad"]
+	path = enum4ad
+	url = https://github.com/lli555/enum4ad.git
