@@ -1,3 +1,6 @@
 [submodule "enum4ad"]
 	path = enum4ad
 	url = https://github.com/lli555/enum4ad.git
+[submodule "Web-Sieve"]
+	path = Web-Sieve
+	url = https://github.com/23yem/Web-Sieve.git
